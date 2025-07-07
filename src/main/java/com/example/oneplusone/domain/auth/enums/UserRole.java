@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 @Getter
 public enum UserRole {
-    ADMIN("ROLE_ADMIN"),
-    USER("ROLE_USER");
+    SELLER("ROLE_SELLER"),
+    BUYER("ROLE_BUYER");
 
     private final String roleName;
 

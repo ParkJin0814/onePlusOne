@@ -1,5 +1,6 @@
 package com.example.oneplusone.domain.auth.entity;
 
+import com.example.oneplusone.domain.auth.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,7 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
 }
