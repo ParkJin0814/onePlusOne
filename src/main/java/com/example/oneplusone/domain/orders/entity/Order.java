@@ -1,6 +1,7 @@
 package com.example.oneplusone.domain.orders.entity;
 
 import com.example.oneplusone.domain.auth.entity.User;
+import com.example.oneplusone.domain.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class orders {
+@Table(name = "orders")
+public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +22,6 @@ public class orders {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }
