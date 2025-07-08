@@ -17,6 +17,6 @@ public class SearchController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<TrendingKeywordResponse>> productSearch(@RequestParam(defaultValue = "10") int limit) {
         TrendingKeywordResponse trendingKeywords = searchService.getTrendingKeywords(limit);
-        return ResponseEntity.ok(ApiResponse.ok("인기검색어 목록이 조회되었습니다.", trendingKeywords));
+        return ResponseEntity.ok(ApiResponse.ok("인기 검색어 목록이 조회되었습니다.", trendingKeywords));
     }
 }
