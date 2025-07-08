@@ -16,8 +16,8 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public ProductResponse productSearch(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.Product_NOT_FOUND));
-        return new ProductResponse (product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity());
+        Product product = productRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+        return new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity());
     }
 
     public Page<ProductResponse> productsPage(String search, Pageable pageable) {
