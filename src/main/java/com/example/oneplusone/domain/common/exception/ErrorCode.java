@@ -18,7 +18,8 @@ public enum ErrorCode {
     USERROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 UserRole"),
 
     // 상품 관련 에러
-    Product_NOT_FOUND(HttpStatus.NOT_FOUND, "Product를 찾을 수 없습니다"),
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다"),
+    PRODUCT_IS_NOT_YOURS(HttpStatus.FORBIDDEN, "본인의 상품이 아닙니다."),
 
     // 입력값 검증 에러 (400 Bad Request)
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다"),
