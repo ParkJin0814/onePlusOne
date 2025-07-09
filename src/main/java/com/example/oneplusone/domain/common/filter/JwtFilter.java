@@ -1,11 +1,16 @@
 package com.example.oneplusone.domain.common.filter;
 
+import com.example.oneplusone.domain.auth.entity.User;
+import com.example.oneplusone.domain.auth.repository.UserRepository;
+import com.example.oneplusone.domain.common.security.UserDetailsImpl;
 import jakarta.servlet.*;
 import com.example.oneplusone.domain.common.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -15,6 +20,7 @@ import java.io.IOException;
 public class JwtFilter implements Filter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -54,7 +60,15 @@ public class JwtFilter implements Filter {
         }
 
         // 토큰에서 사용자ID(식별자) 추출
-        String userId = jwtUtil.extractUserId(token);
+        String userIdStr = jwtUtil.extractUserId(token);
+        Long userId;
+
+        try {
+            userId = Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 사용자 ID");
+            return;
+        }
 
         // 특정한 권한이 필요한 URI에 접근하는 경우 권한 확인 (판매자)
         if (requestURI.startsWith("/seller")) {
@@ -64,6 +78,17 @@ public class JwtFilter implements Filter {
                 return;
             }
         }
+
+        // 사용자 정보 DB에서 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+
+        // Spring Security 인증 객체 생성 후 등록
+        UserDetailsImpl userDetails = new UserDetailsImpl(user); // 커스텀 UserDetails 구현체
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
 
         // 전용 API가 아닌 일반 API의 경우
         filterChain.doFilter(servletRequest, servletResponse);

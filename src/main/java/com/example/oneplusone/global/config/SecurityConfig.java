@@ -1,5 +1,6 @@
 package com.example.oneplusone.global.config;
 
+import com.example.oneplusone.domain.auth.repository.UserRepository;
 import com.example.oneplusone.domain.common.filter.JwtFilter;
 import com.example.oneplusone.domain.common.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,7 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); // 필터 삽입
+                .addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class); // 필터 삽입
 
         return http.build();
     }
