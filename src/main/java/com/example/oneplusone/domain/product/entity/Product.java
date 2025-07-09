@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "products")
@@ -31,4 +33,20 @@ public class Product {
 
     @Column(nullable = false)
     private Long quantity;
+
+    public Product(String name, String type, Long price, Long quantity, User user) {
+        this.name = name;
+        this.type = type;
+        this.price = price;
+        this.quantity = quantity;
+        this.user = user;
+    }
+
+    public void updateProduct(String name, String type, Long price, Long quantity) {
+        this.name = name;
+        this.type = type;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
 }

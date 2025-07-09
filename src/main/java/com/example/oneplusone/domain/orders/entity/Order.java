@@ -24,4 +24,13 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    @Column(nullable = false)
+    private Long quantity;
+
+    public Order(User user, Product product, Long quantity) {
+        this.user = user;
+        this.product = product;
+        this.quantity = quantity;
+    }
 }
