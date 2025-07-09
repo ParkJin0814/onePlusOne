@@ -5,6 +5,7 @@ import com.example.oneplusone.domain.orders.dto.request.OrderRequest;
 import com.example.oneplusone.domain.orders.dto.response.OrderResponse;
 import com.example.oneplusone.domain.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderResponse>> orderProduct(@RequestBody OrderRequest orderRequest, @PathVariable Long productId) {
 
         OrderResponse order = orderService.orderProduct(orderRequest, productId);
-        return ResponseEntity.ok(ApiResponse.ok("상품 구매가 완료되었습니다", order));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
     }
 }
