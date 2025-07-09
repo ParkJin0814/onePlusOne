@@ -23,16 +23,30 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> productSearch(@PathVariable Long id) {
         ProductResponse product = productService.productSearch(id);
-        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.",product));
+        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", product));
     }
 
+    // 기존
     @GetMapping("/products")
-    public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPage(@RequestParam(required = false) String search,
-                                                                       @RequestParam(defaultValue = "0") int page,
-                                                                       @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPage(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductResponse> products = productService.productsPage(search, pageable);
         return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", PagedResponse.from(products)));
     }
 
+    // caching
+    @GetMapping("/products/v2")
+    public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPageV2(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductResponse> products = productService.productsPageV2(search, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", PagedResponse.from(products)));
+    }
 }

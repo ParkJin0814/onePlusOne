@@ -6,6 +6,7 @@ import com.example.oneplusone.domain.product.dto.response.ProductResponse;
 import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,12 @@ public class ProductService {
     }
 
     public Page<ProductResponse> productsPage(String search, Pageable pageable) {
+        Page<Product> Products = productRepository.findByProduct(search, pageable);
+        return Products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));
+    }
+
+    @Cacheable(value = "products", key = "#search + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    public Page<ProductResponse> productsPageV2(String search, Pageable pageable) {
         Page<Product> Products = productRepository.findByProduct(search, pageable);
         return Products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));
     }
