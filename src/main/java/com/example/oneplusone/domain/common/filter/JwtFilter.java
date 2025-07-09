@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class JwtFilter implements Filter {
 
         // 현재 요청 URI 확인
         String requestURI = httpRequest.getRequestURI();
+        log.info("요청 URI: {}", requestURI);
 
         // Authorization 헤더에서 JWT 토큰 추출
         String authHeader = httpRequest.getHeader("Authorization");
