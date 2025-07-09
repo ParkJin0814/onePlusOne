@@ -1,4 +1,4 @@
-package com.example.oneplusone.global.security;
+package com.example.oneplusone.domain.common.security;
 
 import com.example.oneplusone.domain.auth.enums.UserRole;
 import io.jsonwebtoken.*;
