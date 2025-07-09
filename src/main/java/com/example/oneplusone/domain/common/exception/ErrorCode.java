@@ -17,6 +17,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
     USERROLE_NOT_FOUND(HttpStatus.NOT_FOUND, "유효하지 않은 UserRole"),
     DUPLICATED_LOGIN_ID(HttpStatus.CONFLICT, "이미 사용중인 아이디입니다."),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
 
     // 상품 관련 에러
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품를 찾을 수 없습니다"),
