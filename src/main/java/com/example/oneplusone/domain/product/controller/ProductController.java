@@ -35,4 +35,13 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", PagedResponse.from(products)));
     }
 
+    @GetMapping("/products/v2")
+    public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPageV2(@RequestParam(required = false) String search,
+                                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                                    @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductResponse> products = productService.productsPageV2(search, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", PagedResponse.from(products)));
+    }
+
 }
