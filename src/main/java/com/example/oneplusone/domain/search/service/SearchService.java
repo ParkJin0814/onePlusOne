@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class SearchService {
 
     public void saveKeyword(String keyword) {
         redisTemplate.opsForZSet().incrementScore(CACHE_KEY, keyword, 1);
+        redisTemplate.expire(CACHE_KEY, Duration.ofMinutes(10));
     }
 
     public TrendingKeywordResponse getTrendingKeywords(int limit) {
