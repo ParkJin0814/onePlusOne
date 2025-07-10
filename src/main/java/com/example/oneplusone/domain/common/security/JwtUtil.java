@@ -33,11 +33,12 @@ public class JwtUtil {
     }
 
     // Access 토큰 생성
-    public String createAccessToken(Long userId, UserRole userRole) {
+    public String createAccessToken(Long userId, String loginId, UserRole userRole) {
         Date now = new Date();
 
         return BEARER_PREFIX + Jwts.builder()
                 .setSubject(String.valueOf(userId)) // 토큰의 주인 (식별자)
+                .claim("loginId", loginId)
                 .claim("auth", userRole.name()) // 권한 저장 ("SELLER" 또는 "BUYER")
                 .setIssuedAt(now) // 발급시간
                 .setExpiration(new Date(now.getTime() + TOKEN_TIME)) // 만료시간 (60분)
@@ -72,6 +73,11 @@ public class JwtUtil {
         return extractAllClaims(token).getSubject();  // JWT의 subject는 생성 시 setSubject(UserId)로 설정한 값
     }
 
+    // JWT 토큰에서 loginId 정보 추출
+    public String extractLoginId(String token) {
+        return extractAllClaims(token).get("loginId", String.class);
+    }
+
     // JWT 토큰에서 권한 정보를 추출하는 메서드
     public String extractUserRole(String token) {
 
@@ -85,7 +91,7 @@ public class JwtUtil {
     }
 
     // jwt 토큰의 유효성 검증
-    public boolean vaildateToken(String token) {
+    public boolean validateToken(String token) {
         try {
             // 1. JWT 파서 객체를 생성하고
             // 2. 서명 검증에 사용할 키를 지정
@@ -121,5 +127,4 @@ public class JwtUtil {
                 .parseClaimsJws(token) // JWT 문자열을 파싱하고 검증
                 .getBody(); // 토큰 본문 (payLoad) 반환
     }
-
 }
