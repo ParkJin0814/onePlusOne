@@ -70,15 +70,6 @@ public class JwtFilter implements Filter {
             return;
         }
 
-        // 특정한 권한이 필요한 URI에 접근하는 경우 권한 확인 (판매자)
-        if (requestURI.startsWith("/seller")) {
-            // 판매자 권한인지 확인
-            if (!jwtUtil.hasRole(token, "SELLER")) {
-                sendError(httpResponse, HttpServletResponse.SC_FORBIDDEN, "판매자 권한이 필요합니다.");
-                return;
-            }
-        }
-
         // 사용자 정보 DB에서 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자 없음"));

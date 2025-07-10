@@ -31,7 +31,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()    // 로그인, 회원가입 등은 모두 허용
+                        .requestMatchers("/seller/**").hasRole("SELLER") // SELLER 권한만 접근 가능
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class); // 필터 삽입
