@@ -1,6 +1,5 @@
 package com.example.oneplusone.domain.common.filter;
 
-import com.example.oneplusone.domain.auth.entity.User;
 import com.example.oneplusone.domain.auth.repository.UserRepository;
 import com.example.oneplusone.domain.common.security.UserDetailsImpl;
 import jakarta.servlet.*;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -54,28 +52,18 @@ public class JwtFilter implements Filter {
         String token = jwtUtil.resolveToken(authHeader);
 
         // 토큰 유효성 검증
-        if (!jwtUtil.vaildateToken(token)) {
+        if (!jwtUtil.validateToken(token)) {
             sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다. ");
             return;
         }
 
-        // 토큰에서 사용자ID(식별자) 추출
-        String userIdStr = jwtUtil.extractUserId(token);
-        Long userId;
-
-        try {
-            userId = Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 사용자 ID");
-            return;
-        }
-
-        // 사용자 정보 DB에서 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 없음"));
+        // 토큰에서 userId, loginId, userRole 추출
+        Long userId = Long.parseLong(jwtUtil.extractUserId(token));
+        String loginId = jwtUtil.extractLoginId(token);
+        String userRole = jwtUtil.extractUserRole(token);
 
         // Spring Security 인증 객체 생성 후 등록
-        UserDetailsImpl userDetails = new UserDetailsImpl(user); // 커스텀 UserDetails 구현체
+        UserDetailsImpl userDetails = new UserDetailsImpl(userId, loginId, userRole); // 커스텀 UserDetails 구현체
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -83,7 +71,6 @@ public class JwtFilter implements Filter {
 
         // 전용 API가 아닌 일반 API의 경우
         filterChain.doFilter(servletRequest, servletResponse);
-
 
     }
 
