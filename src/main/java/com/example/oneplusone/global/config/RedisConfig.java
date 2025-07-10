@@ -21,6 +21,10 @@ public class RedisConfig {
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
+
+        // <String, String> 직렬화
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
         return template;
     }
 
@@ -29,7 +33,7 @@ public class RedisConfig {
         RedisTemplate<String, ProductResponse> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
 
-        // Key는 String, Value는 JSON 형식으로 직렬화
+        // <String, ProductResponse> 직렬화
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ProductResponse.class));
         return template;
@@ -44,7 +48,7 @@ public class RedisConfig {
         SimpleModule module = new SimpleModule().addDeserializer(PageImpl.class, new PageImplDeserializer());
         ObjectMapper objectMapper = new ObjectMapper().registerModule(module).registerModule(new JavaTimeModule());
 
-        // Key는 String, Value는 Page 형식으로 직렬화
+        // <String, Page> 직렬화
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(objectMapper, PageImpl.class));
         return template;
