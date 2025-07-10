@@ -21,6 +21,12 @@ public class ProductService {
         return new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity());
     }
 
+    @Cacheable(value = "product", key = "#id")
+    public ProductResponse productSearchV2(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+        return new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity());
+    }
+
     public Page<ProductResponse> productsPage(String search, Pageable pageable) {
         Page<Product> Products = productRepository.findByProduct(search, pageable);
         return Products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));

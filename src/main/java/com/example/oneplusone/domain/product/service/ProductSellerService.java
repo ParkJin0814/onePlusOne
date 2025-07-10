@@ -12,6 +12,7 @@ import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +48,10 @@ public class ProductSellerService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true),
+            @CacheEvict(value = "product", key = "#id")
+    })
     public void deleteProduct(Long id) {
         // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
         User user = userRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -60,7 +64,10 @@ public class ProductSellerService {
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "products", allEntries = true),
+            @CacheEvict(value = "product", key = "#id")
+    })
     public ProductSellerResponse updateProduct(Long id, UpdateProductRequest request) {
         // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
         User user = userRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));

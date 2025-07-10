@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
     private final ProductService productService;
 
+    // 기존
     @GetMapping("/products/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> productSearch(@PathVariable Long id) {
         ProductResponse product = productService.productSearch(id);
         return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", product));
     }
 
-    // 기존
     @GetMapping("/products")
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPage(
             @RequestParam(required = false) String search,
@@ -39,6 +39,12 @@ public class ProductController {
     }
 
     // caching
+    @GetMapping("/products/v2/{id}")
+    public ResponseEntity<ApiResponse<ProductResponse>> productSearchV2(@PathVariable Long id) {
+        ProductResponse product = productService.productSearchV2(id);
+        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", product));
+    }
+
     @GetMapping("/products/v2")
     public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> productsPageV2(
             @RequestParam(required = false) String search,

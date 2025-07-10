@@ -1,18 +1,20 @@
 package com.example.oneplusone.domain.product.dto.response;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class ProductResponse {
-    private final Long id;
+    private Long id;
 
-    private final String productName;
+    private String productName;
 
-    private final String type;
+    private String type;
 
-    private final Long price;
+    private Long price;
 
-    private final Long quantity;
+    private Long quantity;
 
     public ProductResponse(Long id, String name, String type, Long price, Long quantity) {
         this.id = id;
