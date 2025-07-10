@@ -44,6 +44,7 @@ public class SearchService {
 
     @Cacheable(value = CACHE_KEY)
     public TrendingKeywordResponse getTrendingKeywords(int limit) {
+        System.out.println("getTrendingKeywords");
         Map<String, Double> keywordScores = new HashMap<>();
 
         // 최근 10분 기준으로 인기검색어 조회
