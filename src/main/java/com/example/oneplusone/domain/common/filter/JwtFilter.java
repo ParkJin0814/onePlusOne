@@ -34,14 +34,14 @@ public class JwtFilter implements Filter {
         String requestURI = httpRequest.getRequestURI();
         log.info("요청 URI: {}", requestURI);
 
-        // Authorization 헤더에서 JWT 토큰 추출
-        String authHeader = httpRequest.getHeader("Authorization");
-
         // 로그인 / 회원가입 요청은 jwt 토큰 없이도 접근 가능하게 허용
         if (requestURI.startsWith("/auth")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
+
+        // Authorization 헤더에서 JWT 토큰 추출
+        String authHeader = httpRequest.getHeader("Authorization");
 
         // Authorization 헤더가 없거나 Bearer 형식이 아닌 경우
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
