@@ -1,7 +1,6 @@
 package com.example.oneplusone.domain.orders.service;
 
 import com.example.oneplusone.domain.auth.entity.User;
-import com.example.oneplusone.domain.auth.enums.UserRole;
 import com.example.oneplusone.domain.auth.repository.UserRepository;
 import com.example.oneplusone.domain.common.exception.BaseException;
 import com.example.oneplusone.domain.common.exception.ErrorCode;
@@ -25,13 +24,14 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public OrderResponse orderProduct(OrderRequest orderRequest, Long productId) {
+    public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
 
         // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
-        User user = userRepository.findById(1L).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
-
+        //비관적 락 구현
+//       Product product = productRepository.findByIdWithLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
         Long quantity = orderRequest.getQuantity();
         if (product.getQuantity() < quantity) {
             throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);

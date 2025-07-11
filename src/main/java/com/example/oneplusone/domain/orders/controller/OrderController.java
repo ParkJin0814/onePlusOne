@@ -20,7 +20,10 @@ public class OrderController {
     @PostMapping("/orders/products/{productId}")
     public ResponseEntity<ApiResponse<OrderResponse>> orderProduct(@RequestBody OrderRequest orderRequest, @PathVariable Long productId) {
 
-        OrderResponse order = orderService.orderProduct(orderRequest, productId);
+        OrderResponse order = orderService.orderProduct(orderRequest, productId, 1L);
+//        OrderResponse order = orderService.orderProductLockService(orderRequest, productId);
+//        OrderResponse order = orderService.orderProductRedissonLockService(orderRequest, productId);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
     }
