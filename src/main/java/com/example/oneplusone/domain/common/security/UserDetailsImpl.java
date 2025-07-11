@@ -14,29 +14,30 @@ import java.util.List;
 @Getter
 public class UserDetailsImpl implements UserDetails {
 
-    private final User user;
+    private final Long userId;
+    private final String loginId;
+    private final String userRole;
 
-    public UserDetailsImpl(User user) {
-        this.user = user;
-    }
+    public UserDetailsImpl(Long userId, String loginId, String userRole) {
 
-    public User getUser() {
-        return user;
+        this.userId = userId;
+        this.loginId = loginId;
+        this.userRole = userRole;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + userRole));
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return null;
     }
 
     @Override
     public String getUsername() {
-        return user.getLoginId();
+        return loginId;
     }
 
     @Override public boolean isAccountNonExpired() { return true; }
