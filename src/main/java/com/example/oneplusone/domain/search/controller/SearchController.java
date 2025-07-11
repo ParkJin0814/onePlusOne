@@ -19,4 +19,13 @@ public class SearchController {
         TrendingKeywordResponse trendingKeywords = searchService.getTrendingKeywords(limit);
         return ResponseEntity.ok(ApiResponse.ok("인기 검색어 목록이 조회되었습니다.", trendingKeywords));
     }
+
+    @GetMapping("/search/no-cache")
+    public ResponseEntity<ApiResponse<TrendingKeywordResponse>> productSearchNoCache(
+            @RequestParam(defaultValue = "10") int limit) {
+        TrendingKeywordResponse trendingKeywords = searchService.getTrendingKeywordsNoCache(limit);
+        return ResponseEntity.ok(
+                ApiResponse.ok("캐시 없이 인기 검색어 목록이 조회되었습니다.", trendingKeywords)
+        );
+    }
 }

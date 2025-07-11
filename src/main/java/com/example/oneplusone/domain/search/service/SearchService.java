@@ -71,4 +71,30 @@ public class SearchService {
                 .map(Map.Entry::getKey) // 키워드만 추출
                 .toList());
     }
+
+    public TrendingKeywordResponse getTrendingKeywordsNoCache(int limit) {
+        System.out.println("getTrendingKeywordsNoCache (no cache)");
+        Map<String, Double> keywordScores = new HashMap<>();
+
+        for (int i = 0; i < 10; i++) {
+            LocalDateTime time = LocalDateTime.now().minusMinutes(i);
+            String key = "trending_keywords:" + time.format(formatter);
+
+            Set<ZSetOperations.TypedTuple<String>> entries =
+                    redisTemplate.opsForZSet().rangeWithScores(key, 0, -1);
+            if (entries != null) {
+                for (ZSetOperations.TypedTuple<String> entry : entries) {
+                    keywordScores.merge(entry.getValue(), entry.getScore(), Double::sum);
+                }
+            }
+        }
+
+        return new TrendingKeywordResponse(
+                keywordScores.entrySet().stream()
+                        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                        .limit(limit)
+                        .map(Map.Entry::getKey)
+                        .toList()
+        );
+    }
 }
