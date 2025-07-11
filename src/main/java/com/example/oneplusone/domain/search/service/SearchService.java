@@ -38,8 +38,9 @@ public class SearchService {
 
     /**
      * 인기 검색어 리스트를 반환해주는 메소드
+     *
      * @param limit 인기 검색어 개수 지정
-     * @return  인기 검색어 리스트
+     * @return 인기 검색어 리스트
      */
     public TrendingKeywordResponse getTrendingKeywords(int limit) {
         Set<ZSetOperations.TypedTuple<Object>> keywords = popularSearch.opsForZSet().reverseRangeWithScores(popular_search_time, 0, limit - 1);
@@ -52,8 +53,9 @@ public class SearchService {
 
     /**
      * 상품 단건 조회 cache 생성
-     * @param id    상품 식별자
-     * @param product   상품 객체
+     *
+     * @param id      상품 식별자
+     * @param product 상품 객체
      */
     public void createProductCache(Long id, ProductResponse product) {
         String key = "search:" + id;
@@ -62,17 +64,19 @@ public class SearchService {
 
     /**
      * 상품 단건 조회시 cache 유무를 확인
-     * @param id    상품 식별자
-     * @return      상품 객체
+     *
+     * @param id 상품 식별자
+     * @return 상품 객체
      */
     public ProductResponse cacheProductSearch(Long id) {
         String key = "search:" + id;
-        return  searchProductCache.opsForValue().get(key);
+        return searchProductCache.opsForValue().get(key);
     }
 
     /**
      * 캐시 삭제
-     * @param id    상품 식별자
+     *
+     * @param id 상품 식별자
      */
     public void cacheEviction(Long id) {
         String key = "search:" + id;
@@ -81,12 +85,13 @@ public class SearchService {
 
     /**
      * 상품 목록 조회시 캐시의 유무를 확인
-     * @param search    상품 검색어
-     * @param pageable  상품 페이지 정보
-     * @return  검색한 상품 페이지 목록
+     *
+     * @param search   상품 검색어
+     * @param pageable 상품 페이지 정보
+     * @return 검색한 상품 페이지 목록
      */
-    public Page<ProductResponse> cachePageSearch( String search, Pageable pageable) {
-        setKey(search, pageable);
+    public Page<ProductResponse> cachePageSearch(String search, Pageable pageable, Long userId) {
+        setKey(search, pageable, userId);
 
         List<ProductResponse> cacheProducts = searchPageCache.opsForValue().get(searchCacheKey);
         //캐시가 존재하는 경우
@@ -97,7 +102,8 @@ public class SearchService {
             // 인기 검색어 추가
             popularSearch();
 
-
+            // 검색한 유저는 인기 검색어 카운팅의 어뷰징을 10분간 제한
+            block.opsForValue().set(blockKey, 1L, 10, TimeUnit.MINUTES);
 
             log.info("redis 조회");
             return new PageImpl<>(
@@ -109,12 +115,13 @@ public class SearchService {
 
     /**
      * 상품 목록 조회 cache 생성
-     * @param productResponses  상품 목록 페이지
-     * @param search    상품 검색어
-     * @param pageable  상품 페이지 정보
+     *
+     * @param productResponses 상품 목록 페이지
+     * @param search           상품 검색어
+     * @param pageable         상품 페이지 정보
      */
-    public void createPageCache(Page<ProductResponse> productResponses, String search, Pageable pageable) {
-        setKey(search, pageable);
+    public void createPageCache(Page<ProductResponse> productResponses, String search, Pageable pageable, Long userId) {
+        setKey(search, pageable, userId);
 
         popularSearch();
 
@@ -144,10 +151,10 @@ public class SearchService {
     }
 
     // 캐시 데이터 키 등록
-    private void setKey(String search, Pageable pageable) {
+    private void setKey(String search, Pageable pageable, Long userId) {
         searchCacheKey = "search:" + search + ":page:" + pageable.getPageNumber() + ":size:" + pageable.getPageSize();
         totalCountKey = "search:" + search + ":size";
-        blockKey = "block:" + "id" + ":search:" + search;
+        blockKey = "block:" + userId + ":search:" + search;
         searchInfo = "search:" + search;
         popular_search_time_plusHour = "popular_search:" + LocalDateTime.now().plusHours(1).format(formatter);
     }

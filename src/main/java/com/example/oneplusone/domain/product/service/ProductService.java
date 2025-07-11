@@ -36,10 +36,10 @@ public class ProductService {
         return Products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));
     }
 
-    public Page<ProductResponse> productsPageV2(String search, Pageable pageable) {
+    public Page<ProductResponse> productsPageV2(String search, Pageable pageable, Long userId) {
 
         // 캐시를 확인
-        Page<ProductResponse> cacheResponse = searchService.cachePageSearch(search, pageable);
+        Page<ProductResponse> cacheResponse = searchService.cachePageSearch(search, pageable, userId);
         // 캐시가 존재하면 캐시 값을 반환
         if(cacheResponse != null) {
             return cacheResponse;
@@ -49,7 +49,7 @@ public class ProductService {
         Page<Product> products = productRepository.findByProduct(search, pageable);
         Page<ProductResponse> productResponses = products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));
         // 인기 검색어를 위한 검색어 카운트
-        searchService.createPageCache(productResponses, search, pageable);
+        searchService.createPageCache(productResponses, search, pageable, userId);
 
         return productResponses;
     }
