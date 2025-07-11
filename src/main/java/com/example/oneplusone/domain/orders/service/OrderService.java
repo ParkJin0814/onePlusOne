@@ -10,6 +10,7 @@ import com.example.oneplusone.domain.orders.entity.Order;
 import com.example.oneplusone.domain.orders.repository.OrderRepository;
 import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
+import com.example.oneplusone.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-
+    private final SearchService searchService;
     @Transactional
     public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
 
@@ -58,6 +59,8 @@ public class OrderService {
         }
         Long quantityAfter = product.getQuantity() - quantity;
         product.setQuantity(quantityAfter);
+        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
+        searchService.cacheEviction(productId);
 
         Order order = new Order(user, product, quantity);
         orderRepository.save(order);
