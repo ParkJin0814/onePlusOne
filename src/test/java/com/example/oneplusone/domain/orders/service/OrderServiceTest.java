@@ -58,9 +58,10 @@ class OrderServiceTest {
 
 
         //when
-        List<Future<OrderResponse>> results = new ArrayList<>();
+        List<Future<OrderResponse>> results = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
-            Future<OrderResponse> submit = executor.submit(() -> orderService.orderProduct(orderRequest, saveProduct.getId(), saveUser.getId()));
+            // db 비관적 락 기능
+            Future<OrderResponse> submit = executor.submit(() -> orderService.orderProductDbLock(orderRequest, saveProduct.getId(), saveUser.getId()));
 
             results.add(submit);
         }
@@ -68,6 +69,8 @@ class OrderServiceTest {
             try {
                 result.get();  // 작업이 끝날 때까지 블록됨, 예외 발생 시 던짐
             } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace(); // 꼭 출력!
+                fail("예외 발생: " + e.getCause()); // e.getCause()가 실제 예외
             }
         }
 

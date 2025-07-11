@@ -30,8 +30,28 @@ public class OrderService {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+        Long quantity = orderRequest.getQuantity();
+        if (product.getQuantity() < quantity) {
+            throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+        }
+        Long quantityAfter = product.getQuantity() - quantity;
+        product.setQuantity(quantityAfter);
+
+        Order order = new Order(user, product, quantity);
+        orderRepository.save(order);
+
+        return new OrderResponse(order);
+    }
+
+    @Transactional
+    public OrderResponse orderProductDbLock(OrderRequest orderRequest, Long productId, Long userId) {
+
+        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
         //비관적 락 구현
-//       Product product = productRepository.findByIdWithLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findByIdWithLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+
         Long quantity = orderRequest.getQuantity();
         if (product.getQuantity() < quantity) {
             throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);

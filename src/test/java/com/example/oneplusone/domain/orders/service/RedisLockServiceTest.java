@@ -60,7 +60,10 @@ class RedisLockServiceTest {
         List<Future<OrderResponse>> results = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
 
+            // lettuce 기능
 //            Future<OrderResponse> submit = executor.submit(() -> redisLockService.orderProductLockService(orderRequest, saveProduct.getId(), saveUser.getId()));
+
+            // redisson 기능
             Future<OrderResponse> submit = executor.submit(() -> redisLockService.orderProductRedissonLockService(orderRequest, saveProduct.getId(), saveUser.getId()));
 
             results.add(submit);

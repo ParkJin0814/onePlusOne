@@ -1,6 +1,5 @@
 package com.example.oneplusone.domain.common.redis;
 
-import io.lettuce.core.RedisClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -19,7 +18,7 @@ public class RedissonLockService {
         RLock lock = redissonClient.getLock(productId.toString());
 
         try {
-            boolean acquireLock = lock.tryLock(60, 10, TimeUnit.HOURS);
+            boolean acquireLock = lock.tryLock(30, 10, TimeUnit.SECONDS);
             if (!acquireLock) {
                 return null;
             }
