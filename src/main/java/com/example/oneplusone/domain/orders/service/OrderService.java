@@ -25,10 +25,8 @@ public class OrderService {
     private final UserRepository userRepository;
     private final SearchService searchService;
     @Transactional
-    public OrderResponse orderProduct(OrderRequest orderRequest, Long productId) {
-
-        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
-        User user = userRepository.findById(1L).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -47,9 +45,8 @@ public class OrderService {
         return new OrderResponse(order);
     }
 
-    public Page<OrderResponse> getBuyersByProduct(Long productId, Pageable pageable) {
-        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
-        User user = userRepository.findById(1L).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    public Page<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (!product.getUser().equals(user)) throw new BaseException(ErrorCode.PRODUCT_IS_NOT_YOURS);
