@@ -24,7 +24,7 @@ public class InitData {
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String KEY_PREFIX = "trending_keywords:";
-    private static final int DUMMY_COUNT = 100_000;
+    private static final int DUMMY_COUNT = 1_000;
     private static final int MINUTES_RANGE = 10; // 최근 10분
 
     @PostConstruct

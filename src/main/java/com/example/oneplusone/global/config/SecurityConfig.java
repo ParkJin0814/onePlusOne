@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()    // 로그인, 회원가입 등은 모두 허용
+                        .requestMatchers("/search").permitAll()    // 로그인, 회원가입 등은 모두 허용
+                        .requestMatchers("/search/no-cache").permitAll()    // 로그인, 회원가입 등은 모두 허용
                         .requestMatchers("/seller/**").hasRole("SELLER") // SELLER 권한만 접근 가능
                         .anyRequest().authenticated()
                 )

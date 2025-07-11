@@ -34,6 +34,15 @@ public class JwtFilter implements Filter {
         String requestURI = httpRequest.getRequestURI();
         log.info("요청 URI: {}", requestURI);
 
+        if (requestURI.startsWith("/search")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+        if (requestURI.startsWith("/search/no-cache")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         // 로그인 / 회원가입 요청은 jwt 토큰 없이도 접근 가능하게 허용
         if (requestURI.startsWith("/auth")) {
             filterChain.doFilter(servletRequest, servletResponse);
