@@ -9,6 +9,7 @@ import com.example.oneplusone.domain.product.dto.request.UpdateProductRequest;
 import com.example.oneplusone.domain.product.dto.response.ProductSellerResponse;
 import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
+import com.example.oneplusone.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class ProductSellerService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final SearchService searchService;
 
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
@@ -54,6 +56,8 @@ public class ProductSellerService {
         if (!product.getUser().equals(user)) throw new BaseException(ErrorCode.PRODUCT_IS_NOT_YOURS);
 
         productRepository.delete(product);
+        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
+        searchService.cacheEviction(id);
     }
 
     @Transactional
@@ -70,6 +74,9 @@ public class ProductSellerService {
                 request.getPrice(),
                 request.getQuantity()
         );
+
+        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
+        searchService.cacheEviction(id);
 
         return ProductSellerResponse.from(product);
     }

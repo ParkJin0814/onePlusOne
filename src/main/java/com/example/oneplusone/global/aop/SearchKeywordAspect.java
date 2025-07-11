@@ -16,18 +16,18 @@ public class SearchKeywordAspect {
     private final SearchService searchService;
 
 
-    // 정상종료되었을때만 실행
-    @AfterReturning(
-            pointcut = "execution(* com.example.oneplusone.domain.product.service.ProductService.productsPage(..))"
-    )
-    public void logSearchKeyword(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-
-        if (args.length >= 1 && args[0] instanceof String searchKeyword) {
-            if (!searchKeyword.isBlank()) {
-                searchService.saveKeyword(searchKeyword);
-                log.info("검색 키워드 저장: {}", searchKeyword);
-            }
-        }
-    }
+//    // 정상종료되었을때만 실행
+//    @AfterReturning(
+//            pointcut = "execution(* com.example.oneplusone.domain.product.service.ProductService.productsPage(..))"
+//    )
+//    public void logSearchKeyword(JoinPoint joinPoint) {
+//        Object[] args = joinPoint.getArgs();
+//
+//        if (args.length >= 1 && args[0] instanceof String searchKeyword) {
+//            if (!searchKeyword.isBlank()) {
+//                searchService.saveKeyword(searchKeyword);
+//                log.info("검색 키워드 저장: {}", searchKeyword);
+//            }
+//        }
+//    }
 }
