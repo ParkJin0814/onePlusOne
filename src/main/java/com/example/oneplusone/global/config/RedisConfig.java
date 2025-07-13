@@ -1,17 +1,23 @@
 package com.example.oneplusone.global.config;
 
-import com.example.oneplusone.domain.product.dto.response.ProductResponse;
+import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import java.util.List;
+import java.time.Duration;
 
 @Configuration
+@EnableCaching
 public class RedisConfig {
 
     @Bean
@@ -26,17 +32,6 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, List<ProductResponse>> searchProductsPage(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, List<ProductResponse>> searchProductsPage = new RedisTemplate<>();
-        searchProductsPage.setConnectionFactory(connectionFactory);
-
-        searchProductsPage.setKeySerializer(new StringRedisSerializer());
-        searchProductsPage.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-
-        return searchProductsPage;
-    }
-
-    @Bean
     public RedisTemplate<String, Long> pageTotalElements(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Long> pageTotalElements = new RedisTemplate<>();
         pageTotalElements.setConnectionFactory(connectionFactory);
@@ -48,13 +43,20 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, ProductResponse> searchProduct(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, ProductResponse> searchProduct = new RedisTemplate<>();
-        searchProduct.setConnectionFactory(connectionFactory);
+    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        // 기본 TTL 없이 생성
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
+                )
+                .disableCachingNullValues();
 
-        searchProduct.setKeySerializer(new StringRedisSerializer());
-        searchProduct.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-
-        return searchProduct;
+        return RedisCacheManager.builder(connectionFactory)
+                .cacheDefaults(config)
+                .withCacheConfiguration(
+                        // 인기검색어의 경우 TTL 5분 설정
+                        CacheKeyConstants.POPULAR_SEARCH,
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)))
+                .build();
     }
 }
