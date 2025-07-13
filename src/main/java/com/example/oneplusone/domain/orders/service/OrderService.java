@@ -28,7 +28,7 @@ public class OrderService {
     public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
-        Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findByIdWithLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
         Long quantity = orderRequest.getQuantity();
         if (product.getQuantity() < quantity) {
