@@ -13,6 +13,7 @@ import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,9 @@ public class OrderService {
             // 검색캐시 전부제거
             @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true),
             // 단일조회 캐시 키값에 해당하는것만 제거
-            @CacheEvict(value = CacheKeyConstants.PRODUCT, key = "#productId")
+            @CacheEvict(value = CacheKeyConstants.PRODUCT, key = "#productId"),
+            // 오더리스트 캐시 제거
+            @CacheEvict(value = CacheKeyConstants.ORDERS, key = "#productId")
     })
     public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
@@ -51,6 +54,7 @@ public class OrderService {
         return new OrderResponse(order);
     }
 
+    @Cacheable(value = CacheKeyConstants.ORDERS, key = "#productId")
     public Page<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
