@@ -1,6 +1,7 @@
 package com.example.oneplusone.domain.product.service;
 
 import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
+import com.example.oneplusone.domain.common.dto.PagedResponse;
 import com.example.oneplusone.domain.common.exception.BaseException;
 import com.example.oneplusone.domain.common.exception.ErrorCode;
 import com.example.oneplusone.domain.product.dto.response.ProductResponse;
@@ -34,10 +35,10 @@ public class ProductService {
     }
 
     @Cacheable(value = CacheKeyConstants.SEARCH_PRODUCT)
-    public Page<ProductResponse> productsPageV2(String search, Pageable pageable) {
+    public PagedResponse<ProductResponse> productsPageV2(String search, Pageable pageable) {
         // 캐시가 없는경우에 아래 내용 실행
         Page<Product> products = productRepository.findByProduct(search, pageable);
 
-        return products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity()));
+        return PagedResponse.from(products.map(product -> new ProductResponse(product.getId(), product.getName(), product.getType(), product.getPrice(), product.getQuantity())));
     }
 }

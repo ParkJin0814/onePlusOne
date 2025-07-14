@@ -41,8 +41,8 @@ public class ProductController {
                                                                                       @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<ProductResponse> products = productService.productsPageV2(search, pageable);
-        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", PagedResponse.from(products)));
+        PagedResponse<ProductResponse> products = productService.productsPageV2(search, pageable);
+        return ResponseEntity.ok(ApiResponse.ok("상품이 조회되었습니다.", products));
     }
 
 }
