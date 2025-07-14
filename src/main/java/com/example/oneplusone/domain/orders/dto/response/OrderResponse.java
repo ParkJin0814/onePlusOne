@@ -3,9 +3,11 @@ package com.example.oneplusone.domain.orders.dto.response;
 import com.example.oneplusone.domain.orders.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class OrderResponse {
     private Long id;
     private Long userId;

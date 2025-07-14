@@ -3,6 +3,7 @@ package com.example.oneplusone.domain.orders.service;
 import com.example.oneplusone.domain.auth.entity.User;
 import com.example.oneplusone.domain.auth.repository.UserRepository;
 import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
+import com.example.oneplusone.domain.common.dto.PagedResponse;
 import com.example.oneplusone.domain.common.exception.BaseException;
 import com.example.oneplusone.domain.common.exception.ErrorCode;
 import com.example.oneplusone.domain.orders.dto.request.OrderRequest;
@@ -55,7 +56,7 @@ public class OrderService {
     }
 
     @Cacheable(value = CacheKeyConstants.ORDERS, key = "#productId")
-    public Page<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+    public PagedResponse<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -63,6 +64,6 @@ public class OrderService {
 
         Page<Order> orders = orderRepository.findByProductId(productId, pageable);
 
-        return orders.map(OrderResponse::new);
+        return PagedResponse.from(orders.map(OrderResponse::new));
     }
 }
