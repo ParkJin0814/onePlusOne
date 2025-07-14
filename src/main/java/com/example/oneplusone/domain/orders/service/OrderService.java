@@ -24,34 +24,12 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SearchService searchService;
+
     @Transactional
     public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
-
-        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
-        Long quantity = orderRequest.getQuantity();
-        if (product.getQuantity() < quantity) {
-            throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);
-        }
-        Long quantityAfter = product.getQuantity() - quantity;
-        product.setQuantity(quantityAfter);
-
-        Order order = new Order(user, product, quantity);
-        orderRepository.save(order);
-
-        return new OrderResponse(order);
-    }
-
-    @Transactional
-    public OrderResponse orderProductDbLock(OrderRequest orderRequest, Long productId, Long userId) {
-
-        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
-        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-        //비관적 락 구현
-        Product product = productRepository.findByIdWithLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
         Long quantity = orderRequest.getQuantity();
         if (product.getQuantity() < quantity) {
@@ -68,9 +46,30 @@ public class OrderService {
         return new OrderResponse(order);
     }
 
-    public Page<OrderResponse> getBuyersByProduct(Long productId, Pageable pageable) {
-        // TODO : 임시로 USER를 찾음 -> 토큰에서 로그인 유저 정보 가져올 예정
-        User user = userRepository.findById(1L).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    @Transactional
+    public OrderResponse orderProductExclusiveLock(OrderRequest orderRequest, Long productId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        // 배타락 설정
+        Product product = productRepository.findByIdWithExclusiveLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        Long quantity = orderRequest.getQuantity();
+        if (product.getQuantity() < quantity) {
+            throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+        }
+        Long quantityAfter = product.getQuantity() - quantity;
+        product.setQuantity(quantityAfter);
+        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
+        searchService.cacheEviction(productId);
+
+        Order order = new Order(user, product, quantity);
+        orderRepository.save(order);
+
+        return new OrderResponse(order);
+    }
+
+    public Page<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (!product.getUser().equals(user)) throw new BaseException(ErrorCode.PRODUCT_IS_NOT_YOURS);
