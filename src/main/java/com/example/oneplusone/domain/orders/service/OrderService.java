@@ -55,8 +55,30 @@ public class OrderService {
         return new OrderResponse(order);
     }
 
+
+    @Transactional
+    public OrderResponse orderProductExclusiveLock(OrderRequest orderRequest, Long productId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+
+        // 배타락 설정
+        Product product = productRepository.findByIdWithExclusiveLock(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        Long quantity = orderRequest.getQuantity();
+        if (product.getQuantity() < quantity) {
+            throw new BaseException(ErrorCode.PRODUCT_OUT_OF_STOCK);
+        }
+        Long quantityAfter = product.getQuantity() - quantity;
+        product.setQuantity(quantityAfter);
+
+        Order order = new Order(user, product, quantity);
+        orderRepository.save(order);
+
+        return new OrderResponse(order);
+    }
+
     @Cacheable(value = CacheKeyConstants.ORDERS, key = "#productId")
     public PagedResponse<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 

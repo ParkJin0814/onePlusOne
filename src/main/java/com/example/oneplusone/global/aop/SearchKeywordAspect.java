@@ -19,6 +19,7 @@ public class SearchKeywordAspect {
     private final SearchService searchService;
 
 
+
     // 정상종료되었을때만 실행
     @AfterReturning(
             pointcut = "execution(* com.example.oneplusone.domain.product.service.ProductService.productsPageV2(..))"
@@ -39,3 +40,4 @@ public class SearchKeywordAspect {
         }
     }
 }
+
