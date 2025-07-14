@@ -5,6 +5,7 @@ import com.example.oneplusone.domain.common.security.UserDetailsImpl;
 import com.example.oneplusone.domain.orders.dto.request.OrderRequest;
 import com.example.oneplusone.domain.orders.dto.response.OrderResponse;
 import com.example.oneplusone.domain.orders.service.OrderService;
+import com.example.oneplusone.domain.orders.service.RedisLockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+    private final RedisLockService redisLockService;
 
     @PostMapping("/orders/products/{productId}")
     public ResponseEntity<ApiResponse<OrderResponse>> orderProduct(
@@ -37,6 +39,9 @@ public class OrderController {
             @PathVariable Long productId) {
 
         OrderResponse order = orderService.orderProductExclusiveLock(orderRequest, productId, userDetails.getUserId());
+//        OrderResponse order = redisLockService.orderProductLockService(orderRequest, productId, userDetails.getUserId());
+//        OrderResponse order = redisLockService.orderProductRedissonLockService(orderRequest, productId, userDetails.getUserId());
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
     }
