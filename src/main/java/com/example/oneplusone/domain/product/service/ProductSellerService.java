@@ -34,6 +34,7 @@ public class ProductSellerService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true)
     public ProductSellerResponse createProduct(CreateProductRequest request, Long userId) {
         Product product = new Product(
                 request.getProductName(),
