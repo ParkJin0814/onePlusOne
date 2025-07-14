@@ -39,7 +39,6 @@ public class OrderController {
             @PathVariable Long productId) {
 
         OrderResponse order = orderService.orderProductExclusiveLock(orderRequest, productId, userDetails.getUserId());
-        OrderResponse order = orderService.orderProductDbLock(orderRequest, productId, userDetails.getUserId());
 //        OrderResponse order = redisLockService.orderProductLockService(orderRequest, productId, userDetails.getUserId());
 //        OrderResponse order = redisLockService.orderProductRedissonLockService(orderRequest, productId, userDetails.getUserId());
 

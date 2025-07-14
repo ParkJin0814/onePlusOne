@@ -1,7 +1,7 @@
 package com.example.oneplusone.domain.orders.service;
 
-import com.example.oneplusone.domain.common.redis.LockService;
-import com.example.oneplusone.domain.common.redis.RedissonLockService;
+import com.example.oneplusone.domain.common.redisLock.LockService;
+import com.example.oneplusone.domain.common.redisLock.RedissonLockService;
 import com.example.oneplusone.domain.orders.dto.request.OrderRequest;
 import com.example.oneplusone.domain.orders.dto.response.OrderResponse;
 import lombok.RequiredArgsConstructor;

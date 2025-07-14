@@ -1,4 +1,4 @@
-package com.example.oneplusone.domain.common.redis;
+package com.example.oneplusone.domain.common.redisLock;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
