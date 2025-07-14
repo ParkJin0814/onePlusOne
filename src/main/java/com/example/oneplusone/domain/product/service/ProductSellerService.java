@@ -2,6 +2,7 @@ package com.example.oneplusone.domain.product.service;
 
 import com.example.oneplusone.domain.auth.entity.User;
 import com.example.oneplusone.domain.auth.repository.UserRepository;
+import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
 import com.example.oneplusone.domain.common.exception.BaseException;
 import com.example.oneplusone.domain.common.exception.ErrorCode;
 import com.example.oneplusone.domain.product.dto.request.CreateProductRequest;
@@ -9,8 +10,9 @@ import com.example.oneplusone.domain.product.dto.request.UpdateProductRequest;
 import com.example.oneplusone.domain.product.dto.response.ProductSellerResponse;
 import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
-import com.example.oneplusone.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +22,6 @@ public class ProductSellerService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final SearchService searchService;
 
     @Transactional(readOnly = true)
     public User getUserById(Long userId) {
@@ -33,6 +34,7 @@ public class ProductSellerService {
     }
 
     @Transactional
+    @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true)
     public ProductSellerResponse createProduct(CreateProductRequest request, Long userId) {
         Product product = new Product(
                 request.getProductName(),
@@ -48,6 +50,12 @@ public class ProductSellerService {
     }
 
     @Transactional
+    @Caching(evict = {
+            // 검색캐시 전부제거
+            @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true),
+            // 단일조회 캐시 키값에 해당하는것만 제거
+            @CacheEvict(value = CacheKeyConstants.PRODUCT, key = "#id")
+    })
     public void deleteProduct(Long id, Long userId) {
         User user = getUserById(userId);
         Product product = getProductById(id);
@@ -56,11 +64,15 @@ public class ProductSellerService {
         if (!product.getUser().equals(user)) throw new BaseException(ErrorCode.PRODUCT_IS_NOT_YOURS);
 
         productRepository.delete(product);
-        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
-        searchService.cacheEviction(id);
     }
 
     @Transactional
+    @Caching(evict = {
+            // 검색캐시 전부제거
+            @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true),
+            // 단일조회 캐시 키값에 해당하는것만 제거
+            @CacheEvict(value = CacheKeyConstants.PRODUCT, key = "#id")
+    })
     public ProductSellerResponse updateProduct(Long id, UpdateProductRequest request, Long userId) {
         User user = getUserById(userId);
         Product product = getProductById(id);
@@ -74,9 +86,6 @@ public class ProductSellerService {
                 request.getPrice(),
                 request.getQuantity()
         );
-
-        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
-        searchService.cacheEviction(id);
 
         return ProductSellerResponse.from(product);
     }

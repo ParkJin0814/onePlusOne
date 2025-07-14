@@ -2,6 +2,8 @@ package com.example.oneplusone.domain.orders.service;
 
 import com.example.oneplusone.domain.auth.entity.User;
 import com.example.oneplusone.domain.auth.repository.UserRepository;
+import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
+import com.example.oneplusone.domain.common.dto.PagedResponse;
 import com.example.oneplusone.domain.common.exception.BaseException;
 import com.example.oneplusone.domain.common.exception.ErrorCode;
 import com.example.oneplusone.domain.orders.dto.request.OrderRequest;
@@ -10,8 +12,10 @@ import com.example.oneplusone.domain.orders.entity.Order;
 import com.example.oneplusone.domain.orders.repository.OrderRepository;
 import com.example.oneplusone.domain.product.entity.Product;
 import com.example.oneplusone.domain.product.repository.ProductRepository;
-import com.example.oneplusone.domain.search.service.SearchService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,9 +27,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final SearchService searchService;
 
     @Transactional
+    @Caching(evict = {
+            // 검색캐시 전부제거
+            @CacheEvict(value = CacheKeyConstants.SEARCH_PRODUCT, allEntries = true),
+            // 단일조회 캐시 키값에 해당하는것만 제거
+            @CacheEvict(value = CacheKeyConstants.PRODUCT, key = "#productId"),
+            // 오더리스트 캐시 제거
+            @CacheEvict(value = CacheKeyConstants.ORDERS, key = "#productId")
+    })
     public OrderResponse orderProduct(OrderRequest orderRequest, Long productId, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
 
@@ -37,14 +48,13 @@ public class OrderService {
         }
         Long quantityAfter = product.getQuantity() - quantity;
         product.setQuantity(quantityAfter);
-        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
-        searchService.cacheEviction(productId);
 
         Order order = new Order(user, product, quantity);
         orderRepository.save(order);
 
         return new OrderResponse(order);
     }
+
 
     @Transactional
     public OrderResponse orderProductExclusiveLock(OrderRequest orderRequest, Long productId, Long userId) {
@@ -59,8 +69,6 @@ public class OrderService {
         }
         Long quantityAfter = product.getQuantity() - quantity;
         product.setQuantity(quantityAfter);
-        // 캐시 동기화가 맞지 않는 상황이기 때문에 캐시를 삭제
-        searchService.cacheEviction(productId);
 
         Order order = new Order(user, product, quantity);
         orderRepository.save(order);
@@ -68,7 +76,9 @@ public class OrderService {
         return new OrderResponse(order);
     }
 
-    public Page<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+    @Cacheable(value = CacheKeyConstants.ORDERS, key = "#productId")
+    public PagedResponse<OrderResponse> getBuyersByProduct(Long productId, Long userId, Pageable pageable) {
+
         User user = userRepository.findById(userId).orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
         Product product = productRepository.findById(productId).orElseThrow(() -> new BaseException(ErrorCode.PRODUCT_NOT_FOUND));
 
@@ -76,6 +86,6 @@ public class OrderService {
 
         Page<Order> orders = orderRepository.findByProductId(productId, pageable);
 
-        return orders.map(OrderResponse::new);
+        return PagedResponse.from(orders.map(OrderResponse::new));
     }
 }

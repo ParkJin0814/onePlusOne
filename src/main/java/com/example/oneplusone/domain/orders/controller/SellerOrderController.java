@@ -6,7 +6,6 @@ import com.example.oneplusone.domain.common.security.UserDetailsImpl;
 import com.example.oneplusone.domain.orders.dto.response.OrderResponse;
 import com.example.oneplusone.domain.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +26,8 @@ public class SellerOrderController {
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<OrderResponse> orders = orderService.getBuyersByProduct(productId, userDetails.getUserId(), pageable);
+        PagedResponse<OrderResponse> orders = orderService.getBuyersByProduct(productId, userDetails.getUserId(), pageable);
 
-        return ResponseEntity.ok(ApiResponse.ok("구매 목록이 조회되었습니다.", PagedResponse.from(orders)));
+        return ResponseEntity.ok(ApiResponse.ok("구매 목록이 조회되었습니다.", orders));
     }
 }
