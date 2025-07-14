@@ -29,9 +29,12 @@ public enum ErrorCode {
     MISSING_REQUIRED_FIELD(HttpStatus.BAD_REQUEST, "필수 입력값이 누락되었습니다"),
 
     // 서버 오류 (500 Internal Server Error)
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "처리 중 오류가 발생했습니다")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "처리 중 오류가 발생했습니다"),
 
-    ;
+    // Lock 관련
+    LOCK_NOT_AVAILABLE(HttpStatus.LOCKED, "락을 획득할 수 없습니다"),
+    LOCK_INTERRUPTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "락 대기 중 인터럽트가 발생했습니다"),
+    UNLOCKING_A_LOCK_WHICH_IS_NOT_LOCKED(HttpStatus.CONFLICT, "획득되지 않은 락을 해제하려고 했습니다");
 
     private final HttpStatus status;// HTTP 상태 코드
     private final String message;// 에러 메시지

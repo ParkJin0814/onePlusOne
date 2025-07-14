@@ -45,6 +45,9 @@ dependencies {
 
     // bcrypt
     implementation 'at.favre.lib:bcrypt:0.10.2'
+
+    // redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
 }
 
 tasks.named('test') {
