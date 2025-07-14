@@ -49,6 +49,28 @@ public class OrderProductTest extends BaseOrderTest {
         assertThat(findProduct.getQuantity()).isEqualTo(0);
     }
 
+    @Test
+    protected void Lettuce가_적용된_테스트_orderProduct() throws Exception {
+        String url = "/orders/lettuce/lock/products/{productId}";
+
+        Product findProduct = orderProductTest(url);
+
+        assertThat(successCount.get()).isEqualTo(100);
+        assertThat(failCount.get()).isEqualTo(0);
+        assertThat(findProduct.getQuantity()).isEqualTo(0);
+    }
+
+    @Test
+    protected void redisson이_적용된_테스트_orderProduct() throws Exception {
+        String url = "/orders/redisson/lock/products/{productId}";
+
+        Product findProduct = orderProductTest(url);
+
+        assertThat(successCount.get()).isEqualTo(100);
+        assertThat(failCount.get()).isEqualTo(0);
+        assertThat(findProduct.getQuantity()).isEqualTo(0);
+    }
+
     protected Product orderProductTest(String url) throws Exception {
         // given
         // 필요 데이터 생성

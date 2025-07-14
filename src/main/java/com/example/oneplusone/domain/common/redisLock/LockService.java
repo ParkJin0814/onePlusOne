@@ -14,7 +14,7 @@ public class LockService {
         // 락을 얻지 못한 경우 대기
         while (!redisLockRepository.redisLock(id)) {
             try {
-                Thread.sleep(3000); // 3초뒤 다시 락 얻기 시도
+                Thread.sleep(25); // 3초뒤 다시 락 얻기 시도
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

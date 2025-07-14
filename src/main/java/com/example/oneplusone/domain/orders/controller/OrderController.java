@@ -39,8 +39,30 @@ public class OrderController {
             @PathVariable Long productId) {
 
         OrderResponse order = orderService.orderProductExclusiveLock(orderRequest, productId, userDetails.getUserId());
-//        OrderResponse order = redisLockService.orderProductLockService(orderRequest, productId, userDetails.getUserId());
-//        OrderResponse order = redisLockService.orderProductRedissonLockService(orderRequest, productId, userDetails.getUserId());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
+    }
+
+    @PostMapping("/orders/lettuce/lock/products/{productId}")
+    public ResponseEntity<ApiResponse<OrderResponse>> orderProductLettuceLock(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody OrderRequest orderRequest,
+            @PathVariable Long productId) {
+
+        OrderResponse order = redisLockService.orderProductLockService(orderRequest, productId, userDetails.getUserId());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
+    }
+
+    @PostMapping("/orders/redisson/lock/products/{productId}")
+    public ResponseEntity<ApiResponse<OrderResponse>> orderProductRedissonLock(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody OrderRequest orderRequest,
+            @PathVariable Long productId) {
+
+        OrderResponse order = redisLockService.orderProductRedissonLockService(orderRequest, productId, userDetails.getUserId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
