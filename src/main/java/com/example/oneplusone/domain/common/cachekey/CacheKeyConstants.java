@@ -7,8 +7,6 @@ public final class CacheKeyConstants {
     public static final String PRODUCT = "cached_product";
     // 상품 검색(페이지) 캐시
     public static final String SEARCH_PRODUCT = "cached_search_product";
-    // 인기검색어 캐시
-    public static final String POPULAR_SEARCH = "cached_popular_search";
     // 주문리스트 캐시
     public static final String ORDERS = "cached_orders";
 }

@@ -1,11 +1,8 @@
 package com.example.oneplusone.domain.search.service;
 
-import com.example.oneplusone.domain.common.cachekey.CacheKeyConstants;
 import com.example.oneplusone.domain.search.dto.TrendingKeywordResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ public class SearchService {
      * @param limit 인기 검색어 개수 지정
      * @return 인기 검색어 리스트
      */
-    @Cacheable(value = CacheKeyConstants.POPULAR_SEARCH)
     public TrendingKeywordResponse getTrendingKeywords(int limit) {
         String popular_search_time = "popular_search:" + LocalDateTime.now().format(formatter);
         Set<ZSetOperations.TypedTuple<Object>> keywords = popularSearch.opsForZSet().reverseRangeWithScores(popular_search_time, 0, limit - 1);
@@ -49,7 +45,6 @@ public class SearchService {
      * @param search // 검색어
      * @param userId // 검색한 유저의 아이디
      */
-    @CacheEvict(value = CacheKeyConstants.POPULAR_SEARCH)
     public void popularSearch(String search, Long userId) {
         LocalDateTime now = LocalDateTime.now();
 
