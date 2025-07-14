@@ -29,4 +29,15 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
     }
+
+    @PostMapping("/orders/lock/products/{productId}")
+    public ResponseEntity<ApiResponse<OrderResponse>> orderProductExclusiveLock(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody OrderRequest orderRequest,
+            @PathVariable Long productId) {
+
+        OrderResponse order = orderService.orderProductExclusiveLock(orderRequest, productId, userDetails.getUserId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok("상품 구매가 완료되었습니다", order));
+    }
 }
