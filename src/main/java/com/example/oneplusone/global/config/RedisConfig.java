@@ -44,19 +44,27 @@ public class RedisConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        GenericJackson2JsonRedisSerializer jsonSerializer =
+                new GenericJackson2JsonRedisSerializer();
+        RedisSerializationContext.SerializationPair<Object> pair =
+                RedisSerializationContext.SerializationPair
+                        .fromSerializer(jsonSerializer);
+
         // 기본 TTL 없이 생성
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())
-                )
+                .serializeValuesWith(pair)
                 .disableCachingNullValues();
+
+        RedisCacheConfiguration popularSearchConfig = config
+                .entryTtl(Duration.ofMinutes(5));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .withCacheConfiguration(
                         // 인기검색어의 경우 TTL 5분 설정
                         CacheKeyConstants.POPULAR_SEARCH,
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)))
+                        popularSearchConfig
+                )
                 .build();
     }
 }
