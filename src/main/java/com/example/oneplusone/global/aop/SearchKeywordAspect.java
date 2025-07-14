@@ -22,7 +22,7 @@ public class SearchKeywordAspect {
 
     // 정상종료되었을때만 실행
     @AfterReturning(
-            pointcut = "execution(* com.example.oneplusone.domain.product.service.ProductService.productsPageV2(..))"
+            pointcut = "execution(* com.example.oneplusone.domain.product.controller.ProductController.productsPageV2(..))"
     )
     public void logSearchKeyword(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();

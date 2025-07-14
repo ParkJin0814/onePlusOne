@@ -14,7 +14,7 @@ public class RedisLockRepository {
     // 락 생성
     public Boolean redisLock(Object key) {
         return redisLock.opsForValue()
-                .setIfAbsent(key.toString(), "lock", Duration.ofMillis(3000));
+                .setIfAbsent(key.toString(), "lock", Duration.ofMillis(20));
     }
     // 락 해제
     public void redisUnLock(Object key) {
