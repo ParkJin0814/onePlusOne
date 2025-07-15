@@ -74,3 +74,28 @@ OnePlusOne은 사용자들이 상품을 검색하고, 인기 검색어를 실시
 ---
 
 ## 문제 해결 (Trouble Shooting)
+
+### 1. 문제 상황
+데이터에 대한 업데이트가 이루어지기 전에 다른 스레드에서 락을 얻어 정보를 획득하여
+동시성 제어에 실패하는 문제 발생
+
+<img width="1405" height="434" alt="image" src="https://github.com/user-attachments/assets/eeffba41-9795-4dea-ae7c-937aff4eaf16" />
+
+### 2. 해결 과정
+정상 상황 :  락 설정 -> 트랜잭션 설정 -> 함수 실행 -> 트랜잭션 해제(쓰기 지연) -> 락 해제
+문제 상황 :  트랜잭션 설정 -> 락 설정 -> 함수 실행 -> 락 해제 -> 트랜잭션 해제(쓰기 지연)
+aop 사용시 주의점 자가 호출 -> 동일한 클래스 내에 있는 함수를 호출하는 행위 -> 트랜잭션 설정이 안됨
+
+<img width="1100" height="374" alt="image" src="https://github.com/user-attachments/assets/3e10ac3f-850b-47f4-b48e-a0e48756a72e" />
+
+### 3. 해결 방안
+RedisLockService 클래스를 생성하여 락 설정하는 기능과 조회 기능을 분리
+
+<img width="1173" height="345" alt="image" src="https://github.com/user-attachments/assets/e3e33303-0d35-4d80-9ab2-950609a5348f" />
+
+
+### 4. 결과
+동시성 제어에 성공
+
+<img width="835" height="119" alt="image" src="https://github.com/user-attachments/assets/1a8ded4a-5d7f-4d55-914c-ce3fa8baf638" />
+
